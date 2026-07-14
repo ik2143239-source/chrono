@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vault Admin</title>
+<meta name="robots" content="noindex,nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#181B1F;--panel:#22262B;--panel2:#2B3036;--txt:#ECEAE3;--mut:#9ba0a8;
+--brass:#C4A768;--ox:#c96a6c;--ok:#7fb589;--line:rgba(236,234,227,.1);--r:3px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--txt);line-height:1.55}
+button{font-family:inherit;cursor:pointer}
+input,textarea,select{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--txt);
+  padding:.6rem .7rem;border-radius:var(--r);font-family:inherit;font-size:.92rem}
+input:focus,textarea:focus,select:focus{outline:1px solid var(--brass)}
+label{display:block;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);margin:.7rem 0 .25rem}
+.btn{background:var(--brass);color:#181B1F;border:0;padding:.65rem 1.4rem;border-radius:var(--r);
+  font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;font-weight:500}
+.btn:hover{filter:brightness(1.1)}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--txt)}
+.btn.danger{background:transparent;border:1px solid var(--ox);color:var(--ox)}
+.btn.sm{padding:.35rem .8rem;font-size:.7rem}
+
+/* login */
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem}
+.login-card{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--brass);
+  border-radius:var(--r);padding:2.2rem;max-width:360px;width:100%}
+.login-card h1{font-family:'Marcellus',serif;font-weight:400;letter-spacing:.14em;font-size:1.3rem;margin-bottom:.2rem}
+.login-card p{color:var(--mut);font-size:.85rem;margin-bottom:1.2rem;font-weight:300}
+.err{color:var(--ox);font-size:.85rem;margin-top:.6rem;min-height:1.2em}
+
+/* app shell */
+#app{display:none}
+.top{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.2rem;
+  background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;flex-wrap:wrap;gap:.6rem}
+.top h1{font-family:'Marcellus',serif;font-weight:400;font-size:1.05rem;letter-spacing:.16em}
+.top h1 span{color:var(--brass)}
+.tabs{display:flex;gap:.3rem;flex-wrap:wrap}
+.tabs button{background:transparent;border:0;color:var(--mut);padding:.45rem .9rem;border-radius:var(--r);
+  font-size:.8rem;letter-spacing:.08em;text-transform:uppercase}
+.tabs button.on{background:var(--panel2);color:var(--brass)}
+main{max-width:1100px;margin:auto;padding:1.4rem 1.2rem 4rem}
+.view{display:none}.view.on{display:block}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.9rem;margin-bottom:1.4rem}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:1rem 1.1rem}
+.stat b{font-size:1.7rem;font-weight:500;color:var(--brass)}
+.stat span{display:block;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--mut)}
+
+/* tables & cards */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:1.2rem;margin-bottom:1.2rem}
+.panel h2{font-family:'Marcellus',serif;font-weight:400;font-size:1.1rem;margin-bottom:.8rem;letter-spacing:.06em}
+.tbl{width:100%;border-collapse:collapse;font-size:.87rem}
+.tbl th{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);text-align:left;
+  padding:.5rem .6rem;border-bottom:1px solid var(--line);font-weight:500}
+.tbl td{padding:.6rem;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl tr:hover td{background:rgba(236,234,227,.03)}
+.tbl img{width:44px;height:44px;object-fit:cover;border-radius:var(--r)}
+.wrap{overflow-x:auto}
+.pill{display:inline-block;padding:.15rem .6rem;border-radius:99px;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase}
+.pill.pending{background:#4a3f24;color:#e8c877}.pill.confirmed{background:#24384a;color:#8ec3ea}
+.pill.shipped{background:#3a2b4a;color:#c9a6ea}.pill.delivered{background:#24402c;color:#8fd49b}
+.pill.cancelled{background:#452527;color:#e79b9d}
+a.map{color:var(--brass);text-decoration:underline;font-size:.82rem}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2rem}
+.row-r{text-align:right;margin-top:1rem}
+.note{color:var(--mut);font-size:.8rem;font-weight:300}
+.toast{position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%);background:var(--panel2);
+  border-left:3px solid var(--brass);padding:.7rem 1.4rem;border-radius:var(--r);display:none;z-index:99;font-size:.88rem}
+@media(max-width:640px){.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login">
+  <div class="login-card">
+    <h1>VAULT <span style="color:var(--brass)">ADMIN</span></h1>
+    <p>This area is restricted. Enter the admin password to continue.</p>
+    <label for="pw">Password</label>
+    <input id="pw" type="password" autocomplete="current-password">
+    <div class="err" id="loginErr"></div>
+    <button class="btn" id="loginBtn" style="width:100%;margin-top:.4rem">Unlock panel</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="top">
+    <h1>VAULT<span>ADMIN</span></h1>
+    <nav class="tabs" id="tabs">
+      <button data-v="dash" class="on">Dashboard</button>
+      <button data-v="watches">Watches</button>
+      <button data-v="orders">Orders</button>
+      <button data-v="visitors">Visitors</button>
+      <button data-v="site">Site Editor</button>
+      <button data-v="security">Security</button>
+    </nav>
+    <button class="btn ghost sm" onclick="logout()">Log out</button>
+  </div>
+
+  <main>
+    <!-- DASHBOARD -->
+    <div class="view on" id="v-dash">
+      <div class="stats" id="stats"></div>
+      <div class="panel"><h2>Latest orders</h2><div class="wrap" id="dashOrders"></div></div>
+    </div>
+
+    <!-- WATCHES -->
+    <div class="view" id="v-watches">
+      <div class="panel">
+        <h2 id="wFormTitle">Add a watch</h2>
+        <div class="grid2">
+          <div><label>Name *</label><input id="wName"></div>
+          <div><label>Brand</label><input id="wBrand"></div>
+          <div><label>Price *</label><input id="wPrice" type="number" min="0"></div>
+          <div><label>Old price (for sale tag)</label><input id="wOld" type="number" min="0"></div>
+          <div><label>Stock</label><input id="wStock" type="number" min="0" value="10"></div>
+          <div><label>Featured (shows first)</label>
+            <select id="wFeat"><option value="0">No</option><option value="1">Yes</option></select></div>
+        </div>
+        <label>Image URL</label><input id="wImg" placeholder="https://...">
+        <label>Description</label><textarea id="wDesc" rows="2"></textarea>
+        <div class="row-r">
+          <button class="btn ghost" id="wCancel" style="display:none" onclick="resetWatchForm()">Cancel</button>
+          <button class="btn" id="wSave" onclick="saveWatch()">Save watch</button>
+        </div>
+      </div>
+      <div class="panel"><h2>Inventory</h2><div class="wrap" id="wTable"></div></div>
+    </div>
+
+    <!-- ORDERS -->
+    <div class="view" id="v-orders">
+      <div class="panel"><h2>Customer orders</h2>
+        <p class="note" style="margin-bottom:.8rem">If a customer shared their GPS location, an "Open map" link appears — it opens the exact delivery point in Google Maps.</p>
+        <div class="wrap" id="oTable"></div>
+      </div>
+    </div>
+
+    <!-- VISITORS -->
+    <div class="view" id="v-visitors">
+      <div class="panel">
+        <h2>Visitor log <button class="btn danger sm" style="float:right" onclick="clearVisitors()">Clear log</button></h2>
+        <p class="note" style="margin-bottom:.8rem">Every visit records IP and device. GPS appears only when a visitor shared location.</p>
+        <div class="wrap" id="vTable"></div>
+      </div>
+    </div>
+
+    <!-- SITE EDITOR -->
+    <div class="view" id="v-site">
+      <div class="panel">
+        <h2>Edit the live website</h2>
+        <p class="note">Changes apply to the public site instantly on save.</p>
+        <div class="grid2">
+          <div><label>Site name</label><input id="sName"></div>
+          <div><label>Currency symbol</label><input id="sCur"></div>
+          <div><label>Tagline (small gold line)</label><input id="sTag"></div>
+          <div><label>Announcement bar</label><input id="sAnn"></div>
+        </div>
+        <label>Hero title (big heading)</label><input id="sHero">
+        <label>Hero subtitle</label><textarea id="sSub" rows="2"></textarea>
+        <div class="grid2">
+          <div><label>Phone</label><input id="sPhone"></div>
+          <div><label>WhatsApp</label><input id="sWa"></div>
+          <div><label>Email</label><input id="sEmail"></div>
+          <div><label>Store address</label><input id="sAddr"></div>
+        </div>
+        <div class="row-r"><button class="btn" onclick="saveSettings()">Publish changes</button></div>
+      </div>
+    </div>
+
+    <!-- SECURITY -->
+    <div class="view" id="v-security">
+      <div class="panel" style="max-width:420px">
+        <h2>Change admin password</h2>
+        <label>Current password</label><input id="pCur" type="password">
+        <label>New password (min 6 chars)</label><input id="pNew" type="password">
+        <div class="row-r"><button class="btn" onclick="changePass()">Update password</button></div>
+      </div>
+      <div class="panel" style="max-width:420px">
+        <h2>Secret admin URL</h2>
+        <p class="note">This panel lives at a hidden path set in <b>config.json</b> (<code>adminPath</code>).
+        Change it there and restart the server to move the panel to a new URL.</p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+let TOKEN = sessionStorage.getItem('vault_token') || null;
+let DATA = null, editingId = null;
+
+const esc = s => { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; };
+const money = v => (DATA?.settings.currency || 'Rs') + ' ' + Number(v).toLocaleString('en-PK');
+const toast = t => { const e = $('toast'); e.textContent = t; e.style.display = 'block';
+  clearTimeout(e._t); e._t = setTimeout(() => e.style.display = 'none', 3500); };
+
+async function api(path, opts = {}) {
+  opts.headers = { 'Content-Type': 'application/json', 'x-admin-token': TOKEN, ...(opts.headers || {}) };
+  const r = await fetch(path, opts);
+  if (r.status === 401 && path !== '/api/admin/login') { logout(); throw new Error('Session expired'); }
+  const d = await r.json();
+  if (!r.ok) { toast(d.error || 'Error'); throw new Error(d.error); }
+  return d;
+}
+
+/* ---- auth ---- */
+$('loginBtn').onclick = login;
+$('pw').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+async function login() {
+  $('loginErr').textContent = '';
+  try {
+    const r = await fetch('/api/admin/login', { method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: $('pw').value }) });
+    const d = await r.json();
+    if (!r.ok) { $('loginErr').textContent = d.error || 'Login failed'; return; }
+    TOKEN = d.token; sessionStorage.setItem('vault_token', TOKEN);
+    enter();
+  } catch (e) { $('loginErr').textContent = 'Server not reachable.'; }
+}
+function logout() { TOKEN = null; sessionStorage.removeItem('vault_token');
+  $('app').style.display = 'none'; $('login').style.display = 'flex'; }
+async function enter() {
+  $('login').style.display = 'none'; $('app').style.display = 'block';
+  await refresh();
+}
+
+/* ---- tabs ---- */
+$('tabs').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x === b));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
+  $('v-' + b.dataset.v).classList.add('on');
+});
+
+/* ---- data ---- */
+async function refresh() {
+  DATA = await api('/api/admin/data');
+  renderStats(); renderWatches(); renderOrders(); renderVisitors(); fillSettings();
+}
+function renderStats() {
+  const s = DATA.stats;
+  $('stats').innerHTML = `
+    <div class="stat"><b>${s.watches}</b><span>Watches</span></div>
+    <div class="stat"><b>${s.orders}</b><span>Total orders</span></div>
+    <div class="stat"><b>${s.pending}</b><span>Pending</span></div>
+    <div class="stat"><b>${s.visitors}</b><span>Visits</span></div>`;
+  $('dashOrders').innerHTML = ordersTable(DATA.orders.slice(0, 6), false);
+}
+
+/* ---- watches ---- */
+function renderWatches() {
+  $('wTable').innerHTML = `<table class="tbl"><tr>
+    <th></th><th>Watch</th><th>Price</th><th>Stock</th><th>Featured</th><th></th></tr>` +
+    DATA.watches.map(w => `<tr>
+      <td><img src="${esc(w.image)}" onerror="this.style.visibility='hidden'"></td>
+      <td><b>${esc(w.name)}</b><br><span class="note">${esc(w.brand)}</span></td>
+      <td>${money(w.price)}${w.old_price ? `<br><span class="note" style="text-decoration:line-through">${money(w.old_price)}</span>` : ''}</td>
+      <td>${w.stock}</td><td>${w.featured ? '★' : '—'}</td>
+      <td style="white-space:nowrap">
+        <button class="btn ghost sm" onclick="editWatch(${w.id})">Edit</button>
+        <button class="btn danger sm" onclick="delWatch(${w.id})">Delete</button>
+      </td></tr>`).join('') + '</table>';
+}
+function editWatch(id) {
+  const w = DATA.watches.find(x => x.id === id); editingId = id;
+  $('wFormTitle').textContent = 'Edit — ' + w.name;
+  $('wName').value = w.name; $('wBrand').value = w.brand; $('wPrice').value = w.price;
+  $('wOld').value = w.old_price || ''; $('wStock').value = w.stock; $('wFeat').value = w.featured;
+  $('wImg').value = w.image; $('wDesc').value = w.description;
+  $('wSave').textContent = 'Update watch'; $('wCancel').style.display = 'inline-block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function resetWatchForm() {
+  editingId = null; $('wFormTitle').textContent = 'Add a watch';
+  ['wName','wBrand','wPrice','wOld','wImg','wDesc'].forEach(i => $(i).value = '');
+  $('wStock').value = 10; $('wFeat').value = 0;
+  $('wSave').textContent = 'Save watch'; $('wCancel').style.display = 'none';
+}
+async function saveWatch() {
+  const body = { name: $('wName').value.trim(), brand: $('wBrand').value.trim(),
+    price: $('wPrice').value, old_price: $('wOld').value || null, image: $('wImg').value.trim(),
+    description: $('wDesc').value.trim(), stock: $('wStock').value, featured: +$('wFeat').value };
+  if (!body.name || !body.price) return toast('Name and price are required.');
+  if (editingId) await api('/api/admin/watches/' + editingId, { method: 'PUT', body: JSON.stringify(body) });
+  else await api('/api/admin/watches', { method: 'POST', body: JSON.stringify(body) });
+  toast('Saved ✓'); resetWatchForm(); refresh();
+}
+async function delWatch(id) {
+  if (!confirm('Delete this watch?')) return;
+  await api('/api/admin/watches/' + id, { method: 'DELETE' }); toast('Deleted'); refresh();
+}
+
+/* ---- orders ---- */
+function ordersTable(list, controls = true) {
+  if (!list.length) return '<p class="note">No orders yet.</p>';
+  return `<table class="tbl"><tr><th>#</th><th>Watch</th><th>Customer</th><th>Location</th><th>Status</th>${controls?'<th></th>':''}</tr>` +
+  list.map(o => `<tr>
+    <td>${o.id}<br><span class="note">${esc(o.created_at)}</span></td>
+    <td>${esc(o.watch_name)}</td>
+    <td><b>${esc(o.customer_name)}</b><br><a class="map" href="tel:${esc(o.phone)}">${esc(o.phone)}</a>
+        <br><span class="note">${esc(o.city)} ${esc(o.address)}</span></td>
+    <td>${o.lat != null
+        ? `<a class="map" target="_blank" href="https://www.google.com/maps?q=${o.lat},${o.lng}">Open map ↗</a><br><span class="note">±${Math.round(o.accuracy||0)} m</span>`
+        : '<span class="note">not shared</span>'}</td>
+    <td><span class="pill ${o.status}">${o.status}</span></td>
+    ${controls ? `<td style="white-space:nowrap">
+      <select onchange="setStatus(${o.id}, this.value)" style="width:auto;padding:.3rem .4rem;font-size:.78rem">
+        ${['pending','confirmed','shipped','delivered','cancelled'].map(s =>
+          `<option ${s===o.status?'selected':''}>${s}</option>`).join('')}
+      </select>
+      <button class="btn danger sm" onclick="delOrder(${o.id})">✕</button></td>` : ''}
+  </tr>`).join('') + '</table>';
+}
+function renderOrders() { $('oTable').innerHTML = ordersTable(DATA.orders); }
+async function setStatus(id, status) {
+  await api('/api/admin/orders/' + id, { method: 'PUT', body: JSON.stringify({ status }) });
+  toast('Status updated'); refresh();
+}
+async function delOrder(id) {
+  if (!confirm('Delete this order?')) return;
+  await api('/api/admin/orders/' + id, { method: 'DELETE' }); refresh();
+}
+
+/* ---- visitors ---- */
+function renderVisitors() {
+  const list = DATA.visitors;
+  $('vTable').innerHTML = !list.length ? '<p class="note">No visits logged.</p>' :
+  `<table class="tbl"><tr><th>When</th><th>IP</th><th>Device</th><th>GPS</th></tr>` +
+  list.map(v => `<tr>
+    <td>${esc(v.created_at)}</td><td>${esc(v.ip)}</td>
+    <td><span class="note">${esc((v.user_agent||'').slice(0,70))}</span></td>
+    <td>${v.lat != null
+      ? `<a class="map" target="_blank" href="https://www.google.com/maps?q=${v.lat},${v.lng}">map ↗</a>` 
+      : '<span class="note">—</span>'}</td></tr>`).join('') + '</table>';
+}
+async function clearVisitors() {
+  if (!confirm('Clear the entire visitor log?')) return;
+  await api('/api/admin/visitors', { method: 'DELETE' }); toast('Cleared'); refresh();
+}
+
+/* ---- settings ---- */
+function fillSettings() {
+  const s = DATA.settings;
+  $('sName').value = s.site_name; $('sCur').value = s.currency; $('sTag').value = s.tagline;
+  $('sAnn').value = s.announcement; $('sHero').value = s.hero_title; $('sSub').value = s.hero_subtitle;
+  $('sPhone').value = s.phone; $('sWa').value = s.whatsapp; $('sEmail').value = s.email; $('sAddr').value = s.address;
+}
+async function saveSettings() {
+  await api('/api/admin/settings', { method: 'PUT', body: JSON.stringify({
+    site_name: $('sName').value, currency: $('sCur').value, tagline: $('sTag').value,
+    announcement: $('sAnn').value, hero_title: $('sHero').value, hero_subtitle: $('sSub').value,
+    phone: $('sPhone').value, whatsapp: $('sWa').value, email: $('sEmail').value, address: $('sAddr').value
+  })});
+  toast('Published ✓ — the live site is updated'); refresh();
+}
+
+/* ---- password ---- */
+async function changePass() {
+  const d = await api('/api/admin/password', { method: 'PUT',
+    body: JSON.stringify({ current: $('pCur').value, next: $('pNew').value }) });
+  toast(d.message); setTimeout(logout, 1200);
+}
+
+/* auto-login if session token exists */
+if (TOKEN) enter().catch(() => logout());
+</script>
+</body>
+</html>

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chrono Vault — Timepieces</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --dial:#ECEAE3;        /* silvered dial */
+  --dial-deep:#E2DFD6;
+  --gunmetal:#22262B;    /* case metal */
+  --ink:#181B1F;
+  --brass:#A8874C;       /* hands & markers */
+  --brass-soft:#C4A768;
+  --oxblood:#5E2A2B;     /* leather strap accent */
+  --line:rgba(24,27,31,.14);
+  --radius:2px;
+  --disp:'Marcellus',serif;
+  --body:'Jost',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--body);background:var(--dial);color:var(--ink);line-height:1.6;font-weight:400}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button{font-family:var(--body);cursor:pointer}
+
+/* ---------- announcement ---------- */
+.bar{background:var(--gunmetal);color:var(--dial);text-align:center;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;padding:.5rem 1rem}
+.bar b{color:var(--brass-soft);font-weight:500}
+
+/* ---------- header ---------- */
+header{position:sticky;top:0;z-index:50;background:rgba(236,234,227,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav{max-width:1180px;margin:auto;display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.25rem}
+.logo{font-family:var(--disp);font-size:1.35rem;letter-spacing:.18em}
+.logo span{color:var(--brass)}
+.links{display:flex;gap:2rem;font-size:.82rem;letter-spacing:.12em;text-transform:uppercase}
+.links a{position:relative;padding:.2rem 0}
+.links a::after{content:"";position:absolute;left:0;bottom:-2px;width:0;height:1px;background:var(--brass);transition:width .25s}
+.links a:hover::after,.links a:focus-visible::after{width:100%}
+.burger{display:none;background:none;border:0;font-size:1.5rem;line-height:1}
+
+/* ---------- hero ---------- */
+.hero{max-width:1180px;margin:auto;padding:4rem 1.25rem 3rem;display:grid;grid-template-columns:1.1fr .9fr;gap:3rem;align-items:center}
+.kicker{font-size:.75rem;letter-spacing:.28em;text-transform:uppercase;color:var(--brass);margin-bottom:1rem;display:flex;align-items:center;gap:.8rem}
+.kicker::before{content:"";width:34px;height:1px;background:var(--brass)}
+h1{font-family:var(--disp);font-size:clamp(2.6rem,6vw,4.4rem);line-height:1.05;font-weight:400;margin-bottom:1.1rem}
+.hero p{max-width:46ch;color:#3c4046;font-weight:300;font-size:1.05rem;margin-bottom:1.8rem}
+.cta-row{display:flex;gap:1rem;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.85rem 1.9rem;font-size:.82rem;letter-spacing:.16em;text-transform:uppercase;border-radius:var(--radius);border:1px solid var(--gunmetal);transition:.25s}
+.btn-solid{background:var(--gunmetal);color:var(--dial)}
+.btn-solid:hover{background:var(--brass);border-color:var(--brass)}
+.btn-ghost{background:transparent;color:var(--gunmetal)}
+.btn-ghost:hover{border-color:var(--brass);color:var(--brass)}
+
+/* live watch — the signature */
+.watchface{width:min(340px,80vw);aspect-ratio:1;margin:auto;position:relative}
+.watchface svg{width:100%;height:100%;filter:drop-shadow(0 24px 40px rgba(24,27,31,.28))}
+.hand{transform-origin:200px 200px}
+
+/* ---------- tachy divider ---------- */
+.tachy{max-width:1180px;margin:1rem auto 0;padding:0 1.25rem;display:flex;align-items:center;gap:6px;overflow:hidden}
+.tachy i{flex:0 0 1px;height:10px;background:var(--line)}
+.tachy i:nth-child(5n){height:18px;background:var(--brass);opacity:.7}
+
+/* ---------- sections ---------- */
+section{max-width:1180px;margin:auto;padding:4.5rem 1.25rem}
+.sec-label{display:flex;align-items:baseline;gap:1rem;margin-bottom:2.4rem}
+.sec-label h2{font-family:var(--disp);font-size:clamp(1.7rem,3.4vw,2.4rem);font-weight:400}
+.sec-label small{font-size:.72rem;letter-spacing:.24em;text-transform:uppercase;color:var(--brass)}
+
+/* ---------- grid ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:1.6rem}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s}
+.card:hover{transform:translateY(-4px);box-shadow:0 18px 34px rgba(24,27,31,.12)}
+.card .ph{aspect-ratio:1;background:var(--dial-deep);overflow:hidden;position:relative}
+.card .ph img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
+.card:hover .ph img{transform:scale(1.05)}
+.tag{position:absolute;top:.7rem;left:.7rem;background:var(--oxblood);color:#f4e9e9;font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;padding:.3rem .6rem}
+.tag.out{background:var(--gunmetal)}
+.card .body{padding:1.1rem 1.1rem 1.25rem;display:flex;flex-direction:column;gap:.35rem;flex:1}
+.brand{font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:var(--brass)}
+.card h3{font-family:var(--disp);font-weight:400;font-size:1.15rem}
+.card .desc{font-size:.85rem;color:#4a4e54;font-weight:300;flex:1}
+.price-row{display:flex;align-items:baseline;gap:.6rem;margin-top:.4rem}
+.price{font-size:1.05rem;font-weight:500}
+.old{color:#9a9a92;text-decoration:line-through;font-size:.85rem;font-weight:300}
+.card .btn{margin-top:.8rem;justify-content:center;padding:.7rem 1rem}
+
+/* ---------- assurance strip ---------- */
+.strip{background:var(--gunmetal);color:var(--dial)}
+.strip .in{max-width:1180px;margin:auto;padding:2.6rem 1.25rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2rem}
+.strip h4{font-family:var(--disp);font-weight:400;letter-spacing:.06em;margin-bottom:.3rem;color:var(--brass-soft)}
+.strip p{font-size:.86rem;font-weight:300;color:#c9cbcf}
+
+/* ---------- contact ---------- */
+.contact{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start}
+.contact .item{padding:1rem 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:1rem;font-size:.95rem}
+.contact .item b{font-weight:500;letter-spacing:.06em}
+.contact .item span{color:#4a4e54;font-weight:300;text-align:right}
+
+/* ---------- footer ---------- */
+footer{border-top:1px solid var(--line);text-align:center;padding:2rem 1rem;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:#6a6e74}
+
+/* ---------- modal ---------- */
+.overlay{position:fixed;inset:0;background:rgba(24,27,31,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:1rem}
+.overlay.open{display:flex}
+.modal{background:var(--dial);border-radius:var(--radius);max-width:430px;width:100%;padding:1.8rem;max-height:92vh;overflow:auto;border-top:3px solid var(--brass)}
+.modal h3{font-family:var(--disp);font-weight:400;font-size:1.4rem;margin-bottom:.2rem}
+.modal .sub{font-size:.85rem;color:#4a4e54;margin-bottom:1.2rem;font-weight:300}
+.field{margin-bottom:.9rem}
+.field label{display:block;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:.3rem;color:#4a4e54}
+.field input,.field textarea{width:100%;padding:.7rem .8rem;border:1px solid var(--line);background:#fff;border-radius:var(--radius);font-family:var(--body);font-size:.95rem}
+.field input:focus,.field textarea:focus{outline:2px solid var(--brass);outline-offset:1px;border-color:transparent}
+.loc-note{font-size:.78rem;color:#4a4e54;background:#fff;border:1px dashed var(--line);padding:.6rem .8rem;border-radius:var(--radius);margin-bottom:1rem;font-weight:300}
+.loc-note.ok{border-color:var(--brass);color:var(--brass)}
+.modal .btn{width:100%;justify-content:center}
+.close{background:none;border:0;float:right;font-size:1.3rem;color:#6a6e74}
+.toast{position:fixed;bottom:1.4rem;left:50%;transform:translateX(-50%);background:var(--gunmetal);color:var(--dial);padding:.8rem 1.6rem;border-radius:var(--radius);font-size:.88rem;z-index:200;display:none;border-left:3px solid var(--brass)}
+
+/* ---------- responsive ---------- */
+@media(max-width:840px){
+  .hero{grid-template-columns:1fr;text-align:center;padding-top:2.6rem}
+  .kicker{justify-content:center}
+  .hero p{margin:0 auto 1.8rem}
+  .cta-row{justify-content:center}
+  .contact{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+  .links{position:fixed;inset:56px 0 auto 0;background:var(--dial);flex-direction:column;gap:0;border-bottom:1px solid var(--line);display:none}
+  .links.open{display:flex}
+  .links a{padding:1rem 1.25rem;border-top:1px solid var(--line)}
+  .burger{display:block}
+}
+@media(prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+
+<div class="bar" id="bar"><b>—</b></div>
+
+<header>
+  <div class="nav">
+    <a class="logo" href="#" id="logo">CHRONO<span>VAULT</span></a>
+    <nav class="links" id="links">
+      <a href="#collection">Collection</a>
+      <a href="#why">Why Us</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <button class="burger" id="burger" aria-label="Menu">☰</button>
+  </div>
+</header>
+
+<div class="hero">
+  <div>
+    <div class="kicker" id="tagline">Time, kept beautifully.</div>
+    <h1 id="heroTitle">Own the hour.</h1>
+    <p id="heroSub"></p>
+    <div class="cta-row">
+      <a class="btn btn-solid" href="#collection">Browse Collection</a>
+      <a class="btn btn-ghost" href="#contact">Contact Us</a>
+    </div>
+  </div>
+
+  <!-- Signature: a live, working watch face -->
+  <div class="watchface" aria-hidden="true">
+    <svg viewBox="0 0 400 400">
+      <circle cx="200" cy="200" r="196" fill="#22262B"/>
+      <circle cx="200" cy="200" r="182" fill="#2B3036"/>
+      <circle cx="200" cy="200" r="172" fill="#ECEAE3"/>
+      <g id="ticks"></g>
+      <text x="200" y="140" text-anchor="middle" font-family="Marcellus" font-size="18" fill="#A8874C" letter-spacing="4">CHRONO</text>
+      <text x="200" y="286" text-anchor="middle" font-family="Jost" font-size="11" fill="#6a6e74" letter-spacing="3">AUTOMATIC</text>
+      <line id="hh" class="hand" x1="200" y1="200" x2="200" y2="118" stroke="#22262B" stroke-width="9" stroke-linecap="round"/>
+      <line id="mh" class="hand" x1="200" y1="200" x2="200" y2="84"  stroke="#22262B" stroke-width="5" stroke-linecap="round"/>
+      <line id="sh" class="hand" x1="200" y1="222" x2="200" y2="70"  stroke="#A8874C" stroke-width="2.4" stroke-linecap="round"/>
+      <circle cx="200" cy="200" r="8" fill="#A8874C"/>
+      <circle cx="200" cy="200" r="3.4" fill="#ECEAE3"/>
+    </svg>
+  </div>
+</div>
+
+<div class="tachy" id="tachy"></div>
+
+<section id="collection">
+  <div class="sec-label"><small>The Collection</small><h2>Timepieces in stock</h2></div>
+  <div class="grid" id="grid"></div>
+</section>
+
+<div class="strip" id="why">
+  <div class="in">
+    <div><h4>Cash on Delivery</h4><p>Pay when your watch arrives at your door. Nationwide delivery.</p></div>
+    <div><h4>Genuine Warranty</h4><p>Every piece is checked and covered by our seller warranty.</p></div>
+    <div><h4>7-Day Returns</h4><p>Changed your mind? Return in original condition within a week.</p></div>
+  </div>
+</div>
+
+<section id="contact">
+  <div class="sec-label"><small>Get in touch</small><h2>Visit or call us</h2></div>
+  <div class="contact">
+    <div>
+      <div class="item"><b>Phone</b><span id="cPhone">—</span></div>
+      <div class="item"><b>WhatsApp</b><span id="cWa">—</span></div>
+      <div class="item"><b>Email</b><span id="cEmail">—</span></div>
+      <div class="item"><b>Store</b><span id="cAddr">—</span></div>
+    </div>
+    <p style="font-weight:300;color:#4a4e54">
+      Order online with cash on delivery, or message us on WhatsApp for photos,
+      videos and live availability of any piece in the collection.
+    </p>
+  </div>
+</section>
+
+<footer id="foot">© Chrono Vault</footer>
+
+<!-- Order modal -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <button class="close" id="mClose" aria-label="Close">✕</button>
+    <h3 id="mTitle">Place order</h3>
+    <div class="sub" id="mSub"></div>
+    <div class="field"><label for="fName">Full name</label><input id="fName" autocomplete="name"></div>
+    <div class="field"><label for="fPhone">Phone / WhatsApp</label><input id="fPhone" autocomplete="tel" inputmode="tel"></div>
+    <div class="field"><label for="fCity">City</label><input id="fCity" autocomplete="address-level2"></div>
+    <div class="field"><label for="fAddr">Delivery address</label><textarea id="fAddr" rows="2"></textarea></div>
+    <div class="loc-note" id="locNote">
+      📍 To make delivery accurate, we can attach your current location to this order.
+      <a href="#" id="locBtn" style="color:var(--brass);text-decoration:underline">Share my location</a>
+    </div>
+    <button class="btn btn-solid" id="mSubmit">Confirm order — Cash on Delivery</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+let SITE = null, current = null, geo = { lat:null, lng:null, accuracy:null };
+
+/* ticks on the live watch */
+(() => {
+  const g = $('ticks'); let s = '';
+  for (let i = 0; i < 60; i++) {
+    const a = i * 6 * Math.PI / 180, big = i % 5 === 0;
+    const r1 = big ? 150 : 160, r2 = 168;
+    s += `<line x1="${200 + r1 * Math.sin(a)}" y1="${200 - r1 * Math.cos(a)}"
+                x2="${200 + r2 * Math.sin(a)}" y2="${200 - r2 * Math.cos(a)}"
+                stroke="${big ? '#A8874C' : '#B9B6AC'}" stroke-width="${big ? 3 : 1}"/>`;
+  }
+  g.innerHTML = s;
+})();
+function tick() {
+  const n = new Date(), s = n.getSeconds() + n.getMilliseconds()/1000,
+        m = n.getMinutes() + s/60, h = (n.getHours() % 12) + m/60;
+  $('sh').setAttribute('transform', `rotate(${s*6} 200 200)`);
+  $('mh').setAttribute('transform', `rotate(${m*6} 200 200)`);
+  $('hh').setAttribute('transform', `rotate(${h*30} 200 200)`);
+  requestAnimationFrame(tick);
+}
+tick();
+
+/* tachy divider */
+(() => { let s=''; for(let i=0;i<160;i++) s+='<i></i>'; $('tachy').innerHTML=s; })();
+
+/* burger */
+$('burger').onclick = () => $('links').classList.toggle('open');
+$('links').addEventListener('click', () => $('links').classList.remove('open'));
+
+/* load site */
+async function load() {
+  const r = await fetch('/api/site'); SITE = await r.json();
+  const st = SITE.settings;
+  $('bar').innerHTML = '<b>' + esc(st.announcement || '') + '</b>';
+  $('tagline').textContent = st.tagline || '';
+  $('heroTitle').textContent = st.hero_title || '';
+  $('heroSub').textContent = st.hero_subtitle || '';
+  $('cPhone').textContent = st.phone; $('cWa').textContent = st.whatsapp;
+  $('cEmail').textContent = st.email; $('cAddr').textContent = st.address;
+  $('foot').textContent = '© ' + new Date().getFullYear() + ' ' + st.site_name;
+  document.title = st.site_name + ' — Timepieces';
+  renderGrid();
+}
+function esc(s){const d=document.createElement('div');d.textContent=s??'';return d.innerHTML;}
+function money(v){return (SITE.settings.currency||'Rs')+' '+Number(v).toLocaleString('en-PK');}
+
+function renderGrid() {
+  $('grid').innerHTML = SITE.watches.map(w => `
+    <div class="card">
+      <div class="ph">
+        ${w.old_price ? '<span class="tag">Sale</span>' : ''}
+        ${w.stock <= 0 ? '<span class="tag out">Sold out</span>' : ''}
+        <img src="${esc(w.image)}" alt="${esc(w.name)}" loading="lazy"
+             onerror="this.style.display='none'">
+      </div>
+      <div class="body">
+        <span class="brand">${esc(w.brand)}</span>
+        <h3>${esc(w.name)}</h3>
+        <p class="desc">${esc(w.description)}</p>
+        <div class="price-row"><span class="price">${money(w.price)}</span>
+          ${w.old_price ? `<span class="old">${money(w.old_price)}</span>` : ''}</div>
+        <button class="btn btn-solid" ${w.stock<=0?'disabled style="opacity:.4;cursor:not-allowed"':''}
+                onclick="openOrder(${w.id})">${w.stock<=0?'Out of stock':'Order now'}</button>
+      </div>
+    </div>`).join('');
+}
+
+/* order flow */
+function openOrder(id) {
+  current = SITE.watches.find(w => w.id === id);
+  $('mTitle').textContent = 'Order — ' + current.name;
+  $('mSub').textContent = (current.brand ? current.brand + ' · ' : '') + money(current.price) + ' · Cash on delivery';
+  $('overlay').classList.add('open');
+}
+$('mClose').onclick = () => $('overlay').classList.remove('open');
+$('overlay').onclick = e => { if (e.target === $('overlay')) $('overlay').classList.remove('open'); };
+
+$('locBtn').onclick = e => {
+  e.preventDefault();
+  if (!navigator.geolocation) return note('Location not supported on this device.');
+  note('Requesting location…');
+  navigator.geolocation.getCurrentPosition(p => {
+    geo = { lat:p.coords.latitude, lng:p.coords.longitude, accuracy:p.coords.accuracy };
+    $('locNote').classList.add('ok');
+    note('✓ Location attached (±' + Math.round(p.coords.accuracy) + ' m). Thank you!');
+  }, () => note('Could not get location — no problem, your written address will be used.'),
+  { enableHighAccuracy:true, timeout:10000 });
+};
+function note(t){ $('locNote').innerHTML = t; }
+
+$('mSubmit').onclick = async () => {
+  const body = {
+    watch_id: current.id,
+    customer_name: $('fName').value.trim(),
+    phone: $('fPhone').value.trim(),
+    city: $('fCity').value.trim(),
+    address: $('fAddr').value.trim(),
+    ...geo
+  };
+  if (!body.customer_name || !body.phone) return toast('Please enter your name and phone.');
+  $('mSubmit').disabled = true;
+  const r = await fetch('/api/orders', { method:'POST',
+    headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  const d = await r.json();
+  $('mSubmit').disabled = false;
+  if (!r.ok) return toast(d.error || 'Something went wrong.');
+  $('overlay').classList.remove('open');
+  toast('✓ ' + d.message);
+  load();
+};
+
+function toast(t){ const el=$('toast'); el.textContent=t; el.style.display='block';
+  clearTimeout(el._t); el._t=setTimeout(()=>el.style.display='none',4000); }
+
+/* log the visit (IP + user agent; GPS only if the customer shared it) */
+fetch('/api/visit', { method:'POST', headers:{'Content-Type':'application/json'},
+  body: JSON.stringify({ page: location.pathname }) }).catch(()=>{});
+
+load();
+</script>
+</body>
+</html>
